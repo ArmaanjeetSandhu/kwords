@@ -5,28 +5,95 @@ from typing import Set
 wn.download("oewn:2024")
 
 print("Building vocabulary...")
-all_valid_forms: Set[str] = set()
-for w in wn.words():
-    all_valid_forms.add(w.lemma().lower())
-    for form in w.forms():
-        all_valid_forms.add(form.lower())
+base_lemmas: Set[str] = {w.lemma().lower() for w in wn.words()}
+
+
+def get_lemmas(word: str) -> Set[str]:
+    """Strips regular suffixes to find base dictionary lemmas.
+
+    Normalizes a word to lowercase and checks whether it or any of its
+    stemmed forms (produced by stripping common English suffixes) exist in
+    the WordNet vocabulary.
+
+    Args:
+        word: The word to look up, in any case.
+
+    Returns:
+        A set of base lemma strings found in the WordNet vocabulary that
+        correspond to the input word or its stemmed variants. Empty if no
+        match is found.
+    """
+    lemmas = set()
+    word = word.lower()
+
+    if word in base_lemmas:
+        lemmas.add(word)
+
+    suffixes = [
+        ("ed", ""),  # bombarded -> bombard
+        ("ed", "e"),  # baked -> bake
+        ("ing", ""),  # jumping -> jump
+        ("ing", "e"),  # baking -> bake
+        ("s", ""),  # cars -> car
+        ("es", ""),  # boxes -> box
+    ]
+
+    for suffix, replacement in suffixes:
+        if word.endswith(suffix):
+            stem = word[: -len(suffix)] + replacement
+            if stem in base_lemmas:
+                lemmas.add(stem)
+
+    return lemmas
+
+
+def is_valid_word(word: str) -> bool:
+    """Checks if a word resolves to at least one base dictionary lemma.
+
+    Args:
+        word: The word to validate.
+
+    Returns:
+        True if the word or a stemmed variant exists in the WordNet
+        vocabulary, False otherwise.
+    """
+    return len(get_lemmas(word)) > 0
+
+
+def is_scattered(parent: str, joey: str) -> bool:
+    """Checks whether a joey is a scattered (non-contiguous) subsequence of the parent.
+
+    A joey is considered scattered if it cannot be found as a contiguous
+    substring within the parent word. This ensures that valid joeys are
+    true subsequences rather than simple substrings.
+
+    Args:
+        parent: The parent word to search within.
+        joey: The candidate subsequence to test.
+
+    Returns:
+        True if ``joey`` does not appear as a contiguous substring of
+        ``parent``, False otherwise.
+    """
+    return joey not in parent
 
 
 def get_subsequences(word: str, min_length: int = 3) -> Set[str]:
-    """Generate valid dictionary subsequences from a word.
+    """Generates valid dictionary subsequences from a word.
 
     A subsequence is formed by deleting zero or more characters without
-    changing the order of the remaining characters.
+    changing the order of the remaining characters. Only subsequences that
+    exist in the WordNet lexicon, are not identical to the input word, and
+    are not contiguous substrings of the input (i.e. are scattered) are
+    returned.
 
     Args:
-        word (str): The source word.
-        min_length (int, optional): Minimum length of subsequences to consider.
+        word: The source word from which subsequences are derived.
+        min_length: Minimum character length of subsequences to consider.
             Defaults to 3.
 
     Returns:
-        set[str]: A set of valid subsequences that:
-            - Exist in the WordNet lexicon.
-            - Are not identical to the input word.
+        A set of valid scattered subsequences of ``word``.
     """
     word = word.lower()
     found: Set[str] = set()
@@ -34,64 +101,70 @@ def get_subsequences(word: str, min_length: int = 3) -> Set[str]:
     for length in range(min_length, len(word)):
         for indices in combinations(range(len(word)), length):
             candidate = "".join(word[i] for i in indices)
-            if candidate in all_valid_forms and candidate != word:
+
+            if is_valid_word(candidate) and is_scattered(word, candidate):
                 found.add(candidate)
 
     return found
 
 
-def get_synset_cluster(word: str) -> Set[str]:
-    """Retrieve an expanded semantic cluster of synsets for a word.
+def get_synset_cluster(lemmas: Set[str]) -> Set[str]:
+    """Retrieves an expanded semantic cluster of synsets for a set of lemmas.
 
-    The cluster includes:
-        - All synsets directly associated with the word.
-        - Any synsets reachable via 'similar', 'hypernym', or 'hyponym'
-          relations, approximating both synonymy and broader/narrower
-          semantic relatedness in OEWN.
+    The cluster includes all synsets directly associated with each lemma,
+    plus any synsets reachable via ``similar``, ``hypernym``, or ``hyponym``
+    relations. This approximates both synonymy and broader/narrower semantic
+    relatedness within OEWN.
 
     Args:
-        word (str): The target word.
+        lemmas: The set of base lemma strings to expand into a synset cluster.
 
     Returns:
-        set[str]: A set of synset IDs representing the semantic cluster.
+        A set of synset ID strings representing the full semantic cluster.
     """
     cluster: Set[str] = set()
     relations_to_check = ["similar", "hypernym", "hyponym"]
 
-    for w in wn.words(form=word):
-        for s in w.synsets():
-            cluster.add(s.id)
-            for rel in relations_to_check:
-                for related in s.get_related(rel):
-                    cluster.add(related.id)
+    for lemma in lemmas:
+        for w in wn.words(form=lemma):
+            for s in w.synsets():
+                cluster.add(s.id)
+                for rel in relations_to_check:
+                    for related in s.get_related(rel):
+                        cluster.add(related.id)
 
     return cluster
 
 
 def find_kangaroo_words(parent_word: str) -> list[str]:
-    """Find kangaroo words for a given parent word.
+    """Finds kangaroo words (joeys) contained within a parent word.
 
-    A kangaroo word contains one or more subsequences (joeys) that are:
-        - Valid dictionary words.
-        - Semantically related to the parent word.
-
-    Semantic relatedness is approximated via overlap in synset clusters,
-    expanded to include hypernym and hyponym relations in addition to
-    synonymy.
+    A kangaroo word contains one or more scattered subsequences (joeys) that
+    are both valid dictionary words and semantically related to the parent.
+    Semantic relatedness is determined by overlap in synset clusters, expanded
+    to include hypernym and hyponym relations in addition to direct synonymy.
 
     Args:
-        parent_word (str): The word to analyze.
+        parent_word: The word to analyze for embedded joey candidates.
 
     Returns:
-        list[str]: A list of kangaroo candidates sorted by length
-        (longest first).
+        A list of valid joey strings sorted by length, longest first.
     """
-    candidates: Set[str] = get_subsequences(parent_word)
-    parent_cluster: Set[str] = get_synset_cluster(parent_word)
+    parent_lemmas = get_lemmas(parent_word)
+    parent_cluster = get_synset_cluster(parent_lemmas)
 
+    candidates = get_subsequences(parent_word)
     valid_joeys = []
+
     for c in candidates:
-        if parent_cluster & get_synset_cluster(c):
+        joey_lemmas = get_lemmas(c)
+
+        if not parent_lemmas.isdisjoint(joey_lemmas):
+            continue
+
+        joey_cluster = get_synset_cluster(joey_lemmas)
+
+        if parent_cluster & joey_cluster:
             valid_joeys.append(c)
 
     return sorted(valid_joeys, key=len, reverse=True)
