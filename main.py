@@ -56,14 +56,14 @@ def get_synset_cluster(word: str) -> Set[str]:
         set[str]: A set of synset IDs representing the semantic cluster.
     """
     cluster: Set[str] = set()
-
     relations_to_check = ["similar", "hypernym", "hyponym"]
 
-    for s in wn.synsets(word):
-        cluster.add(s.id)
-        for rel in relations_to_check:
-            for related in s.get_related(rel):
-                cluster.add(related.id)
+    for w in wn.words(form=word):
+        for s in w.synsets():
+            cluster.add(s.id)
+            for rel in relations_to_check:
+                for related in s.get_related(rel):
+                    cluster.add(related.id)
 
     return cluster
 
