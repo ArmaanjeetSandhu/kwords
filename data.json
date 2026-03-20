@@ -1,0 +1,49 @@
+[
+  { "parent": "ABERRANT", "joeys": [{ "word": "ERRANT", "rel": "synonym" }] },
+  { "parent": "MASCULINE", "joeys": [{ "word": "MALE", "rel": "synonym" }] },
+  {
+    "parent": "FRANGIBLE",
+    "joeys": [
+      { "word": "FRAGILE", "rel": "synonym" },
+      { "word": "FRAIL", "rel": "synonym" }
+    ]
+  },
+  {
+    "parent": "PRECIPITATION",
+    "joeys": [{ "word": "RAIN", "rel": "synonym" }]
+  },
+  {
+    "parent": "DESTRUCTION",
+    "joeys": [
+      { "word": "RUIN", "rel": "synonym" },
+      { "word": "DUST", "rel": "synonym" }
+    ]
+  },
+  { "parent": "DESPERATION", "joeys": [{ "word": "NEED", "rel": "synonym" }] },
+  { "parent": "EVIL", "joeys": [{ "word": "VILE", "rel": "synonym" }] },
+  { "parent": "SATISFIED", "joeys": [{ "word": "SATED", "rel": "synonym" }] },
+  { "parent": "OBSERVE", "joeys": [{ "word": "SEE", "rel": "synonym" }] },
+  { "parent": "ROTUND", "joeys": [{ "word": "ROUND", "rel": "synonym" }] },
+  {
+    "parent": "PERAMBULATE",
+    "joeys": [{ "word": "RAMBLE", "rel": "synonym" }]
+  },
+  { "parent": "ALONE", "joeys": [{ "word": "LONE", "rel": "synonym" }] },
+  { "parent": "INDOLENT", "joeys": [{ "word": "IDLE", "rel": "synonym" }] },
+  { "parent": "ENCOURAGE", "joeys": [{ "word": "URGE", "rel": "synonym" }] },
+  { "parent": "INSTRUCTOR", "joeys": [{ "word": "TUTOR", "rel": "synonym" }] },
+  { "parent": "TRANSGRESSION", "joeys": [{ "word": "SIN", "rel": "synonym" }] },
+  { "parent": "DELIBERATE", "joeys": [{ "word": "DEBATE", "rel": "synonym" }] },
+  { "parent": "ANIMOSITY", "joeys": [{ "word": "AMITY", "rel": "antonym" }] },
+  { "parent": "FABRICATION", "joeys": [{ "word": "FACT", "rel": "antonym" }] },
+  { "parent": "COVERT", "joeys": [{ "word": "OVERT", "rel": "antonym" }] },
+  {
+    "parent": "CONTAINER",
+    "joeys": [
+      { "word": "CAN", "rel": "synonym" },
+      { "word": "TIN", "rel": "synonym" }
+    ]
+  },
+  { "parent": "MUNICIPALITY", "joeys": [{ "word": "CITY", "rel": "synonym" }] },
+  { "parent": "BLOSSOM", "joeys": [{ "word": "BLOOM", "rel": "synonym" }] }
+]
