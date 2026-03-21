@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>*words & **kwords</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-inner">
+        <h1>*words & <em>**kwords</em></h1>
+      </div>
+    </header>
+
+    <div class="controls-bar">
+      <div class="controls-inner">
+        <div class="filter-group">
+          <span class="filter-group-label">Adjacency</span>
+          <div class="divider"></div>
+          <button
+            class="seg-btn active"
+            onclick="setFilter('contig', 'both', this)"
+          >
+            both
+          </button>
+          <button
+            class="seg-btn"
+            onclick="setFilter('contig', 'contiguous', this)"
+          >
+            contiguous
+          </button>
+          <button
+            class="seg-btn"
+            onclick="setFilter('contig', 'noncontiguous', this)"
+          >
+            non-contiguous
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-group-label">Order</span>
+          <div class="divider"></div>
+          <button
+            class="seg-btn active"
+            onclick="setFilter('order', 'all', this)"
+          >
+            all
+          </button>
+          <button class="seg-btn" onclick="setFilter('order', 'ordered', this)">
+            sorted
+          </button>
+          <button class="seg-btn" onclick="setFilter('order', 'reverse', this)">
+            reverse
+          </button>
+          <button
+            class="seg-btn"
+            onclick="setFilter('order', 'unordered', this)"
+          >
+            unordered
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-group-label">Relation</span>
+          <div class="divider"></div>
+          <button
+            class="seg-btn active"
+            onclick="setFilter('rel', 'both', this)"
+          >
+            both
+          </button>
+          <button class="seg-btn" onclick="setFilter('rel', 'synonym', this)">
+            synonyms
+          </button>
+          <button class="seg-btn" onclick="setFilter('rel', 'antonym', this)">
+            antonyms
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-group-label">Joeys</span>
+          <div class="divider"></div>
+          <button
+            class="seg-btn active"
+            onclick="setFilter('joeys', 'all', this)"
+          >
+            all
+          </button>
+          <button class="seg-btn" onclick="setFilter('joeys', 'one', this)">
+            one joey
+          </button>
+          <button class="seg-btn" onclick="setFilter('joeys', 'two', this)">
+            two+ joeys
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="stats" id="stats"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
